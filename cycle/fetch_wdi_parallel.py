@@ -1,0 +1,41 @@
+"""Same output as brink_data.wdi_vintages (data/clean/wdi_vintages.parquet), fetched in parallel threads (speed only)."""
+import os, sys, requests, pandas as pd
+from concurrent.futures import ThreadPoolExecutor
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); sys.path.insert(0, ROOT)
+from brink_data import UA, CLEAN, WDI
+vlist = []
+for pg in (1, 2, 3):
+    js = requests.get(f"https://api.worldbank.org/v2/sources/57/version?format=json&page={pg}", headers=UA, timeout=120).json()
+    vlist += js["source"][0]["concept"][0]["variable"]
+by_year = {}
+for v in vlist:
+    y = int(v["id"][:4])
+    if 2009 <= y and (y not in by_year or v["id"] < by_year[y]): by_year[y] = v["id"]
+extra = [v["id"] for v in vlist if int(v["id"][:4]) >= 2009 and v["id"][4:6] in ("07", "09", "10", "12")]
+eds = sorted(set(by_year.values()) | set(extra))
+def job(a):
+    ed, code, nm = a
+    url = f"https://api.worldbank.org/v2/sources/57/country/all/series/{code}/version/{ed}/time/all?format=json&per_page=50000"
+    err = None
+    for k in range(3):
+        try:
+            js = requests.get(url, headers=UA, timeout=240).json()
+            data = js["source"]["data"] if isinstance(js, dict) else []
+            out = []
+            for d in data:
+                vv = {x["concept"]: x["id"] for x in d["variable"]}
+                if d.get("value") is None: continue
+                out.append((vv.get("Country"), int(str(vv.get("Time", "YR0"))[2:] or 0), nm, d["value"], ed))
+            return out
+        except Exception as e:
+            err = e
+    print("FAIL", ed, code, err, flush=True); return []
+tasks = [(ed, c, n) for ed in eds for c, n in WDI.items()]
+rows = []
+with ThreadPoolExecutor(12) as ex:
+    for i, r in enumerate(ex.map(job, tasks)):
+        rows += r
+        if i % 50 == 0: print(i, len(tasks), len(rows), flush=True)
+df = pd.DataFrame(rows, columns=["iso3", "year", "indicator", "value", "edition"])
+df.to_parquet(os.path.join(CLEAN, "wdi_vintages.parquet"), index=False)
+print("saved", len(df), df.edition.nunique())
