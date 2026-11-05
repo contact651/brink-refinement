@@ -1,0 +1,12 @@
+# Data is downloaded fresh on every run and never stored here
+data/*
+!data/models/
+data/models/*.parquet
+*.parquet
+*.csv
+*.csv.gz
+*.b64
+cycle/exam/
+__pycache__/
+*.pyc
+.cache/
