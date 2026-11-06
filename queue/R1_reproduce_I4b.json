@@ -1,0 +1,8 @@
+{
+ "id": "R1_reproduce_I4b",
+ "title": "Machine self-test: the place's own past crisis rate, GLOBAL lens only",
+ "added": "2026-11-06",
+ "lens": "GLOBAL",
+ "add_signals": ["x_own"],
+ "note": "Cycle 1 (26 Oct 2026) kept this idea on the practice years (idea I4b). The weekly machine should reach the same verdict on the same years. A different verdict means the machine, not the idea, needs checking."
+}
