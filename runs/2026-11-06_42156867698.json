@@ -1,0 +1,774 @@
+{
+ "inputs_manifest": {
+  "countries": 183,
+  "files": {
+   "clean/disasters_public.parquet": "f8d472ef24583d363f31ceef462b729ff37a53afad5a2ef4dbdf7215b7db5fac",
+   "clean/ucdp_ged_cm_26_1.parquet": "86b901a5abc4c68035568281b58de1dc9efa3d9e62a7b2d3ac4a9d6a009451a6",
+   "outcomes_long_open.csv.gz": "d87721cf5d927308407053beb3fed926fce74d9b5f0c786c03cd99d137581324",
+   "panel.pkl": "0b3476846ea46d1c48ea3085cd0d4b8fa6916b2d1ff3bf87f4b571e15141b4ff",
+   "targets_open.csv.gz": "73b9a8c9499d267e780b8d96df98aeb41bd7ca51388f438a7babd700923ce585"
+  },
+  "last_month": "2014-12",
+  "open_outcomes_check": {
+   "outcomes_long_open.csv.gz": {
+    "round1": "d87721cf5d927308407053beb3fed926fce74d9b5f0c786c03cd99d137581324",
+    "same_as_round1": true,
+    "sha256": "d87721cf5d927308407053beb3fed926fce74d9b5f0c786c03cd99d137581324"
+   },
+   "targets_open.csv.gz": {
+    "round1": "73b9a8c9499d267e780b8d96df98aeb41bd7ca51388f438a7babd700923ce585",
+    "same_as_round1": true,
+    "sha256": "73b9a8c9499d267e780b8d96df98aeb41bd7ca51388f438a7babd700923ce585"
+   }
+  },
+  "packages": {
+   "country_converter": "1.2",
+   "numpy": "2.1.3",
+   "pandas": "2.2.3",
+   "pyarrow": "18.1.0",
+   "requests": "2.32.3",
+   "scikit-learn": "1.5.2",
+   "scipy": "1.14.1"
+  },
+  "rows": 135480,
+  "sources": [
+   {
+    "ok": "True",
+    "rows": "417968",
+    "source": "UCDP GED",
+    "version": "26.1"
+   },
+   {
+    "ok": "True",
+    "rows": "385918",
+    "source": "UCDP GED",
+    "version": "25.1"
+   },
+   {
+    "ok": "True",
+    "rows": "349733",
+    "source": "UCDP GED",
+    "version": "24.1"
+   },
+   {
+    "ok": "True",
+    "rows": "316818",
+    "source": "UCDP GED",
+    "version": "23.1"
+   },
+   {
+    "ok": "True",
+    "rows": "293634",
+    "source": "UCDP GED",
+    "version": "22.1"
+   },
+   {
+    "ok": "True",
+    "rows": "261864",
+    "source": "UCDP GED",
+    "version": "21.1"
+   },
+   {
+    "ok": "True",
+    "rows": "225385",
+    "source": "UCDP GED",
+    "version": "20.1"
+   },
+   {
+    "ok": "True",
+    "rows": "152616",
+    "source": "UCDP GED",
+    "version": "19.1"
+   },
+   {
+    "ok": "True",
+    "rows": "142902",
+    "source": "UCDP GED",
+    "version": "18.1"
+   },
+   {
+    "ok": "True",
+    "rows": "135181",
+    "source": "UCDP GED",
+    "version": "17.1"
+   },
+   {
+    "ok": "True",
+    "rows": "128264",
+    "source": "UCDP GED",
+    "version": "5.0"
+   },
+   {
+    "ok": "True",
+    "rows": "109148",
+    "source": "UCDP GED",
+    "version": "4.0"
+   },
+   {
+    "ok": "False",
+    "rows": "0",
+    "source": "UCDP Candidate",
+    "version": "24.0.1"
+   },
+   {
+    "ok": "True",
+    "rows": "8635",
+    "source": "UCDP Candidate",
+    "version": "104 monthly releases"
+   },
+   {
+    "ok": "True",
+    "rows": "2816",
+    "source": "UCDP/PRIO Armed Conflict",
+    "version": "26.1"
+   },
+   {
+    "ok": "True",
+    "rows": "1408",
+    "source": "UCDP One-sided",
+    "version": "26.1"
+   },
+   {
+    "ok": "True",
+    "rows": "1821",
+    "source": "UCDP Non-state",
+    "version": "26.1"
+   },
+   {
+    "ok": "True",
+    "rows": "1650",
+    "source": "UCDP BRD conflict",
+    "version": "26.1"
+   },
+   {
+    "ok": "True",
+    "rows": "19857",
+    "source": "V-Dem",
+    "version": "v16"
+   },
+   {
+    "ok": "True",
+    "rows": "19678",
+    "source": "V-Dem",
+    "version": "v15"
+   },
+   {
+    "ok": "True",
+    "rows": "19499",
+    "source": "V-Dem",
+    "version": "v14"
+   },
+   {
+    "ok": "True",
+    "rows": "19320",
+    "source": "V-Dem",
+    "version": "v13"
+   },
+   {
+    "ok": "False",
+    "rows": "0",
+    "source": "V-Dem",
+    "version": "v12"
+   },
+   {
+    "ok": "True",
+    "rows": "18966",
+    "source": "V-Dem",
+    "version": "v11.1"
+   },
+   {
+    "ok": "True",
+    "rows": "18787",
+    "source": "V-Dem",
+    "version": "v10"
+   },
+   {
+    "ok": "True",
+    "rows": "18608",
+    "source": "V-Dem",
+    "version": "v9"
+   },
+   {
+    "ok": "True",
+    "rows": "18311",
+    "source": "V-Dem",
+    "version": "v8"
+   },
+   {
+    "ok": "True",
+    "rows": "120582",
+    "source": "World Bank WDI (current)",
+    "version": "API v2, retrieved today"
+   },
+   {
+    "ok": "True",
+    "rows": "52443",
+    "source": "IMF CPI (monthly YoY)",
+    "version": "IMF.STA:CPI current"
+   },
+   {
+    "ok": "True",
+    "rows": "54650",
+    "source": "IMF effective exchange rates (NEER, monthly)",
+    "version": "IMF.STA:EER current"
+   },
+   {
+    "ok": "True",
+    "rows": "12486",
+    "source": "BoC-BoE sovereign default database",
+    "version": "2026"
+   },
+   {
+    "ok": "True",
+    "rows": "12314",
+    "source": "BoC-BoE sovereign default database",
+    "version": "2025"
+   },
+   {
+    "ok": "True",
+    "rows": "12148",
+    "source": "BoC-BoE sovereign default database",
+    "version": "2024"
+   },
+   {
+    "ok": "True",
+    "rows": "353",
+    "source": "PITF Adverse Regime Change",
+    "version": "2018"
+   },
+   {
+    "ok": "True",
+    "rows": "599",
+    "source": "PITF Revolutionary War",
+    "version": "2018"
+   },
+   {
+    "ok": "True",
+    "rows": "999",
+    "source": "PITF Ethnic War",
+    "version": "2018"
+   },
+   {
+    "ok": "True",
+    "rows": "289",
+    "source": "PITF Genocide/Politicide",
+    "version": "2018"
+   },
+   {
+    "ok": "True",
+    "rows": "871",
+    "source": "CSP Coups list",
+    "version": "v2021"
+   },
+   {
+    "ok": "True",
+    "rows": "10464",
+    "source": "CSP Coups annual",
+    "version": "v2021"
+   },
+   {
+    "ok": "True",
+    "rows": "17145",
+    "source": "Mass Mobilization Project",
+    "version": "mmALL_073120 (to Mar 2020)"
+   },
+   {
+    "ok": "True",
+    "rows": "4559",
+    "source": "NOAA NCEI hazards (earthquake, tsunami, volcano)",
+    "version": "API v1"
+   },
+   {
+    "ok": "True",
+    "rows": "5131",
+    "source": "Dartmouth Flood Observatory (ArcGIS copy)",
+    "version": "feature service"
+   },
+   {
+    "ok": "True",
+    "rows": "728",
+    "source": "Country borders (GeoDataSource)",
+    "version": "GitHub master"
+   }
+  ]
+ },
+ "result": {
+  "experiments": [
+   {
+    "add_signals": [
+     "x_own"
+    ],
+    "cells": [
+     {
+      "better_by": 0.0,
+      "h": 1,
+      "lens": "GLOBAL",
+      "metric": "brier",
+      "p_better": 0.006,
+      "p_worse": 0.996,
+      "sig_better": false,
+      "sig_worse": false,
+      "variant": 0.0228,
+      "working_model": 0.0228
+     },
+     {
+      "better_by": 0.0067,
+      "h": 3,
+      "lens": "GLOBAL",
+      "metric": "prauc",
+      "p_better": 0.008,
+      "p_worse": 0.994,
+      "sig_better": false,
+      "sig_worse": false,
+      "variant": 0.1793,
+      "working_model": 0.1726
+     },
+     {
+      "better_by": 0.0003,
+      "h": 3,
+      "lens": "GLOBAL",
+      "metric": "brier",
+      "p_better": 0.004,
+      "p_worse": 0.998,
+      "sig_better": true,
+      "sig_worse": false,
+      "variant": 0.0599,
+      "working_model": 0.0602
+     },
+     {
+      "better_by": 0.0102,
+      "h": 6,
+      "lens": "GLOBAL",
+      "metric": "prauc",
+      "p_better": 0.002,
+      "p_worse": 1.0,
+      "sig_better": true,
+      "sig_worse": false,
+      "variant": 0.308,
+      "working_model": 0.2978
+     },
+     {
+      "better_by": 0.0011,
+      "h": 6,
+      "lens": "GLOBAL",
+      "metric": "brier",
+      "p_better": 0.002,
+      "p_worse": 1.0,
+      "sig_better": true,
+      "sig_worse": false,
+      "variant": 0.1022,
+      "working_model": 0.1034
+     },
+     {
+      "better_by": 0.0117,
+      "h": 12,
+      "lens": "GLOBAL",
+      "metric": "prauc",
+      "p_better": 0.002,
+      "p_worse": 1.0,
+      "sig_better": true,
+      "sig_worse": false,
+      "variant": 0.4772,
+      "working_model": 0.4655
+     },
+     {
+      "better_by": 0.0023,
+      "h": 12,
+      "lens": "GLOBAL",
+      "metric": "brier",
+      "p_better": 0.002,
+      "p_worse": 1.0,
+      "sig_better": true,
+      "sig_worse": false,
+      "variant": 0.1563,
+      "working_model": 0.1586
+     },
+     {
+      "better_by": 0.0032,
+      "h": 18,
+      "lens": "GLOBAL",
+      "metric": "brier",
+      "p_better": 0.002,
+      "p_worse": 1.0,
+      "sig_better": false,
+      "sig_worse": false,
+      "variant": 0.185,
+      "working_model": 0.1882
+     },
+     {
+      "better_by": 0.0039,
+      "h": 24,
+      "lens": "GLOBAL",
+      "metric": "brier",
+      "p_better": 0.002,
+      "p_worse": 1.0,
+      "sig_better": false,
+      "sig_worse": false,
+      "variant": 0.1954,
+      "working_model": 0.1994
+     },
+     {
+      "better_by": -0.0,
+      "h": 1,
+      "lens": "DOMESTIC",
+      "metric": "brier",
+      "p_better": 1.0,
+      "p_worse": 1.0,
+      "sig_better": false,
+      "sig_worse": false,
+      "variant": 0.0065,
+      "working_model": 0.0065
+     },
+     {
+      "better_by": 0.0,
+      "h": 3,
+      "lens": "DOMESTIC",
+      "metric": "prauc",
+      "p_better": 1.0,
+      "p_worse": 1.0,
+      "sig_better": false,
+      "sig_worse": false,
+      "variant": 0.0338,
+      "working_model": 0.0338
+     },
+     {
+      "better_by": -0.0,
+      "h": 3,
+      "lens": "DOMESTIC",
+      "metric": "brier",
+      "p_better": 1.0,
+      "p_worse": 1.0,
+      "sig_better": false,
+      "sig_worse": false,
+      "variant": 0.0188,
+      "working_model": 0.0188
+     },
+     {
+      "better_by": 0.0,
+      "h": 6,
+      "lens": "DOMESTIC",
+      "metric": "prauc",
+      "p_better": 1.0,
+      "p_worse": 1.0,
+      "sig_better": false,
+      "sig_worse": false,
+      "variant": 0.0626,
+      "working_model": 0.0626
+     },
+     {
+      "better_by": -0.0,
+      "h": 6,
+      "lens": "DOMESTIC",
+      "metric": "brier",
+      "p_better": 1.0,
+      "p_worse": 1.0,
+      "sig_better": false,
+      "sig_worse": false,
+      "variant": 0.0365,
+      "working_model": 0.0365
+     },
+     {
+      "better_by": 0.0,
+      "h": 12,
+      "lens": "DOMESTIC",
+      "metric": "prauc",
+      "p_better": 1.0,
+      "p_worse": 1.0,
+      "sig_better": false,
+      "sig_worse": false,
+      "variant": 0.1228,
+      "working_model": 0.1228
+     },
+     {
+      "better_by": -0.0,
+      "h": 12,
+      "lens": "DOMESTIC",
+      "metric": "brier",
+      "p_better": 1.0,
+      "p_worse": 1.0,
+      "sig_better": false,
+      "sig_worse": false,
+      "variant": 0.0686,
+      "working_model": 0.0686
+     },
+     {
+      "better_by": -0.0,
+      "h": 18,
+      "lens": "DOMESTIC",
+      "metric": "brier",
+      "p_better": 1.0,
+      "p_worse": 1.0,
+      "sig_better": false,
+      "sig_worse": false,
+      "variant": 0.0975,
+      "working_model": 0.0975
+     },
+     {
+      "better_by": -0.0,
+      "h": 24,
+      "lens": "DOMESTIC",
+      "metric": "brier",
+      "p_better": 1.0,
+      "p_worse": 1.0,
+      "sig_better": false,
+      "sig_worse": false,
+      "variant": 0.1211,
+      "working_model": 0.1211
+     }
+    ],
+    "coefficients": {
+     "DOMESTIC_1": {
+      "x_own": 0.1238
+     },
+     "DOMESTIC_12": {
+      "x_own": 0.0311
+     },
+     "DOMESTIC_18": {
+      "x_own": 0.0519
+     },
+     "DOMESTIC_24": {
+      "x_own": 0.0562
+     },
+     "DOMESTIC_3": {
+      "x_own": 0.0939
+     },
+     "DOMESTIC_6": {
+      "x_own": 0.0531
+     },
+     "GLOBAL_1": {
+      "x_own": 0.5121
+     },
+     "GLOBAL_12": {
+      "x_own": 0.4999
+     },
+     "GLOBAL_18": {
+      "x_own": 0.522
+     },
+     "GLOBAL_24": {
+      "x_own": 0.5024
+     },
+     "GLOBAL_3": {
+      "x_own": 0.5114
+     },
+     "GLOBAL_6": {
+      "x_own": 0.5102
+     }
+    },
+    "continents_worse": [],
+    "file": "R1_reproduce_I4b.json",
+    "id": "R1_reproduce_I4b",
+    "lens": "GLOBAL",
+    "rules": {
+     "K1_some_gate_cell_significantly_better": true,
+     "K2_no_cell_significantly_worse": true,
+     "K3_no_continent_worse": true
+    },
+    "sha256": "eb4f7f67fbd31d0ac935b0742f02ddb1c27e13439e315c4d6bb07d6a90da176b",
+    "title": "Machine self-test: the place's own past crisis rate, GLOBAL lens only",
+    "variant_extra_signals": {
+     "DOMESTIC": [],
+     "GLOBAL": [
+      "x_own"
+     ]
+    },
+    "verdict": "KEEP"
+   }
+  ],
+  "keep_rule": "cycle/practice.py K1-K3 (B=500, seed 20261026, Holm alpha 0.05)",
+  "misses": {
+   "by_cause": {
+    "data late or hidden (deaths already happening were not yet published at forecast time)": 11,
+    "signal not read (the model does not watch freedoms being squeezed)": 4,
+    "signal not read (the model has no economic signal: prices, currency, debt)": 36,
+    "signal not read (the model has no signal for coup risk or fragile rulers)": 8,
+    "signal not read (the model has no signal for street pressure: prices, cuts, protests)": 107,
+    "true surprise (no public warning signal for earthquakes, floods, volcanoes)": 3,
+    "true surprise (no violence or other public signal beforehand)": 7,
+    "weighed too low or too slow (the model saw violence but did not raise the alarm enough)": 16
+   },
+   "calm_country_months_12m": 21774,
+   "events": 775,
+   "false_alarm_country_months_12m": 8465,
+   "status_counts": {
+    "missed": 173,
+    "seen in time": 583,
+    "seen late (3 months)": 19
+   },
+   "thresholds_70pct_catch": {
+    "12": 0.2362,
+    "3": 0.0654,
+    "6": 0.126
+   },
+   "top_misses_by_human_cost": [
+    {
+     "cause": "true surprise (no public warning signal for earthquakes, floods, volcanoes)",
+     "human_cost": 46846.0,
+     "iso3": "JPN",
+     "month": "2011-03",
+     "status": "missed",
+     "type": "C5"
+    },
+    {
+     "cause": "data late or hidden (deaths already happening were not yet published at forecast time)",
+     "human_cost": 27208.0,
+     "iso3": "SYR",
+     "month": "2011-08",
+     "status": "seen late (3 months)",
+     "type": "C1"
+    },
+    {
+     "cause": "data late or hidden (deaths already happening were not yet published at forecast time)",
+     "human_cost": 19708.0,
+     "iso3": "SYR",
+     "month": "2011-06",
+     "status": "seen late (3 months)",
+     "type": "C2"
+    },
+    {
+     "cause": "data late or hidden (deaths already happening were not yet published at forecast time)",
+     "human_cost": 19708.0,
+     "iso3": "SYR",
+     "month": "2011-06",
+     "status": "seen late (3 months)",
+     "type": "C1"
+    },
+    {
+     "cause": "weighed too low or too slow (the model saw violence but did not raise the alarm enough)",
+     "human_cost": 15718.0,
+     "iso3": "SYR",
+     "month": "2011-03",
+     "status": "missed",
+     "type": "C2"
+    },
+    {
+     "cause": "weighed too low or too slow (the model saw violence but did not raise the alarm enough)",
+     "human_cost": 3922.0,
+     "iso3": "IND",
+     "month": "2000-04",
+     "status": "seen late (3 months)",
+     "type": "C2"
+    },
+    {
+     "cause": "true surprise (no violence or other public signal beforehand)",
+     "human_cost": 3914.0,
+     "iso3": "LBY",
+     "month": "2011-02",
+     "status": "missed",
+     "type": "C2"
+    },
+    {
+     "cause": "data late or hidden (deaths already happening were not yet published at forecast time)",
+     "human_cost": 3595.0,
+     "iso3": "LBY",
+     "month": "2011-03",
+     "status": "missed",
+     "type": "C1"
+    },
+    {
+     "cause": "true surprise (no violence or other public signal beforehand)",
+     "human_cost": 2986.0,
+     "iso3": "USA",
+     "month": "2001-09",
+     "status": "missed",
+     "type": "C1"
+    },
+    {
+     "cause": "true surprise (no violence or other public signal beforehand)",
+     "human_cost": 2986.0,
+     "iso3": "USA",
+     "month": "2001-09",
+     "status": "missed",
+     "type": "C2"
+    }
+   ]
+  },
+  "practice_years": "2000-01..2014-12",
+  "queue_left": 0,
+  "refused": [],
+  "schema": 1,
+  "seconds": 50,
+  "status": "experiment ran",
+  "working_model": "1.0",
+  "working_model_scores": {
+   "DOMESTIC_1": {
+    "brier": 0.0065,
+    "events": 205,
+    "n": 31361,
+    "prauc": 0.0111
+   },
+   "DOMESTIC_12": {
+    "brier": 0.0686,
+    "events": 2057,
+    "n": 27316,
+    "prauc": 0.1228
+   },
+   "DOMESTIC_18": {
+    "brier": 0.0975,
+    "events": 2880,
+    "n": 25574,
+    "prauc": 0.2022
+   },
+   "DOMESTIC_24": {
+    "brier": 0.1211,
+    "events": 3569,
+    "n": 24041,
+    "prauc": 0.2563
+   },
+   "DOMESTIC_3": {
+    "brier": 0.0188,
+    "events": 586,
+    "n": 30467,
+    "prauc": 0.0338
+   },
+   "DOMESTIC_6": {
+    "brier": 0.0365,
+    "events": 1120,
+    "n": 29300,
+    "prauc": 0.0626
+   },
+   "GLOBAL_1": {
+    "brier": 0.0228,
+    "events": 749,
+    "n": 31500,
+    "prauc": 0.0647
+   },
+   "GLOBAL_12": {
+    "brier": 0.1586,
+    "events": 6530,
+    "n": 28304,
+    "prauc": 0.4655
+   },
+   "GLOBAL_18": {
+    "brier": 0.1882,
+    "events": 8629,
+    "n": 27042,
+    "prauc": 0.5725
+   },
+   "GLOBAL_24": {
+    "brier": 0.1994,
+    "events": 10117,
+    "n": 25902,
+    "prauc": 0.6531
+   },
+   "GLOBAL_3": {
+    "brier": 0.0602,
+    "events": 2074,
+    "n": 30721,
+    "prauc": 0.1726
+   },
+   "GLOBAL_6": {
+    "brier": 0.1034,
+    "events": 3804,
+    "n": 29781,
+    "prauc": 0.2978
+   }
+  }
+ },
+ "run": {
+  "commit": "e1c7410aeb151b9b385bb9df6c4640c534bc5b47",
+  "run_attempt": "1",
+  "run_id": "42156867698",
+  "run_url": "https://github.com/contact651/brink-refinement/actions/runs/42156867698",
+  "workflow": "weekly-practice"
+ }
+}
