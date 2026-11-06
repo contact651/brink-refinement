@@ -65,12 +65,14 @@ jobs:
       - name: Push a candidate branch for each kept idea (merged only after council verdict and member approval)
         working-directory: cand
         run: |
-          shopt -s nullglob
+          git config user.name "brink-weekly"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           for f in "$RUNNER_TEMP"/proposals/*.json; do
+            [ -e "$f" ] || continue
             id="$(basename "$f" .json)"
             git switch -c "candidate/${id}-${GITHUB_RUN_ID}" main
             cp "$f" loop/working_model.json
-            git -c user.name=brink-weekly -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -am "Candidate: ${id} kept on the practice years (run ${GITHUB_RUN_ID})"
+            git commit -q -am "Candidate: ${id} kept on the practice years (run ${GITHUB_RUN_ID})"
             git push origin "candidate/${id}-${GITHUB_RUN_ID}"
             git switch main
           done
@@ -89,5 +91,7 @@ jobs:
         run: |
           python3 trusted/loop/record.py failed --ledger ledger
           cd ledger
-          git -c user.name=brink-weekly -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -am "Weekly practice run ${GITHUB_RUN_ID} failed"
+          git config user.name "brink-weekly"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -q -am "Weekly practice run ${GITHUB_RUN_ID} failed"
           git push origin HEAD:ledger
