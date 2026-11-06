@@ -6,7 +6,8 @@ Weekly loop, step 3 of 3 (trusted, reviewed code on main; runs after the isolate
              ledger/results.jsonl, the full result to ledger/runs/, and one line to ledger/runs.jsonl.
              Existing lines are never edited. A kept idea gets a proposed Working Model file (for a candidate
              branch); nothing reaches main without the council verdict and a member's approval.
-  failed   : append a 'failed' line to ledger/runs.jsonl (a failed run never counts as an idea dropped).
+  failed   : append a 'failed' line to ledger/runs.jsonl (a failed run never counts as an idea dropped); it says
+             whether this run's result line was already recorded before the failure.
 Standard library only.
 """
 import argparse, datetime as dt, hashlib, json, os, re, sys
@@ -72,7 +73,10 @@ def main():
                     ids.update(e["id"] for e in json.loads(line).get("experiments", []))
         json.dump(sorted(ids), open(a.out, "w")); print("already tested:", sorted(ids)); return
     if a.cmd == "failed":
-        append(os.path.join(a.ledger, "runs.jsonl"), {"date": now(), **run, "status": "failed (no result recorded)"}); return
+        have = os.path.exists(res_path) and any(line.strip() and json.loads(line).get("run_id") == run["run_id"] and
+                                                  json.loads(line).get("run_attempt") == run["run_attempt"] for line in open(res_path, encoding="utf-8"))
+        why = "failed after its result was recorded (a later step broke; see the run)" if have else "failed (no result recorded)"
+        append(os.path.join(a.ledger, "runs.jsonl"), {"date": now(), **run, "status": why}); return
     r = json.load(open(a.result)); check(r)
     man = json.load(open(a.manifest))
     day = now()[:10]
