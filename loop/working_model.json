@@ -1,0 +1,6 @@
+{
+ "version": "1.0",
+ "description": "The Working Model the weekly practice run compares every idea against: the Claude design locked for Round 1 (brink_claude.py, data/models/claude_params.json) with no extra signals. Changes only by a reviewed pull request after a council verdict and a member's approval.",
+ "extra_signals": {"GLOBAL": [], "DOMESTIC": []},
+ "pending_candidate": "v1.1 = v1.0 + the place's own past crisis rate (x_own) on the GLOBAL lens; kept on practice and exam check 1 of 2026 Q4; waiting for the council."
+}
