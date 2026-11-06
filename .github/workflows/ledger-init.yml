@@ -1,0 +1,22 @@
+# One-time: create the append-only ledger branch. Refuses to run if the ledger already exists.
+name: ledger-init
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  init:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main, path: repo }
+      - name: Create the ledger branch
+        working-directory: repo
+        run: |
+          if git ls-remote --exit-code --heads origin ledger; then echo "ledger already exists: nothing to do"; exit 1; fi
+          git switch --orphan ledger
+          printf '%s\n' "# Brink refinement ledger" "" "Append-only record of every weekly practice run and every exam check." "Lines are only ever added, never edited or removed. Written only by the workflows on main." > README.md
+          : > results.jsonl; : > runs.jsonl; : > exam_ledger.jsonl
+          git add README.md results.jsonl runs.jsonl exam_ledger.jsonl
+          git -c user.name=brink-ledger-init -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -m "Start the append-only ledger"
+          git push origin ledger

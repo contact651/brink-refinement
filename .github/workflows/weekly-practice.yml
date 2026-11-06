@@ -1,0 +1,93 @@
+# Brink weekly practice run (practice years 2000-2014 only; no exam data exists in this job).
+# Plan passed by the Judges (LONG MONEY Task 2, round 3, 5 Nov 2026). Results go to the append-only ledger branch.
+name: weekly-practice
+on:
+  schedule:
+    - cron: "40 11 * * 1"   # Mondays 11:40 UTC
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: brink-ledger-writer
+  cancel-in-progress: false
+jobs:
+  practice:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    permissions:
+      contents: write
+    steps:
+      - name: Check out reviewed code (main)
+        uses: actions/checkout@v4
+        with: { ref: main, path: src, persist-credentials: false }
+      - name: Check out the ledger (read only) to list ideas already tested
+        uses: actions/checkout@v4
+        with: { ref: ledger, path: ledger_ro, persist-credentials: false }
+      - name: List ideas already tested
+        run: python3 src/loop/record.py done-ids --ledger ledger_ro --out "$RUNNER_TEMP/done_ids.json"
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Install pinned packages (before isolation)
+        run: python -m pip install --no-cache-dir -r src/requirements.txt
+      - name: Download public data
+        working-directory: src
+        run: |
+          python brink_data.py --vintages --only ucdp_ged,ucdp_candidate,ucdp_small,vdem,wdi_current,imf,boc_boe,pitf_csp,mmp,disasters,borders
+          python cycle/fetch_wdi_parallel.py
+          python cycle/fetch_extra_wdi.py
+          curl -fsSL --retry 3 -o data/raw/country_centroids_gavinr.csv https://raw.githubusercontent.com/gavinr/world-countries-centroids/master/dist/countries.csv
+      - name: Build practice inputs (to Dec 2014 only)
+        working-directory: src
+        run: |
+          python loop/prep_practice.py --out "$RUNNER_TEMP/practice_inputs"
+          cp "$RUNNER_TEMP/practice_inputs/manifest.json" "$RUNNER_TEMP/manifest.json"
+      - name: Isolated practice test (canary first; no network, no repository, empty environment)
+        run: bash src/loop/isolate.sh
+      - name: Check out trusted code (main)
+        uses: actions/checkout@v4
+        with: { ref: main, path: trusted, persist-credentials: false }
+      - name: Check out the ledger (write)
+        uses: actions/checkout@v4
+        with: { ref: ledger, path: ledger }
+      - name: Check the result and append it to the ledger
+        run: python3 trusted/loop/record.py append --ledger ledger --result "$RUNNER_TEMP/result.json" --manifest "$RUNNER_TEMP/manifest.json" --working-model trusted/loop/working_model.json --proposals "$RUNNER_TEMP/proposals"
+      - name: Push the ledger (normal push; force-push is blocked)
+        working-directory: ledger
+        run: |
+          git config user.name "brink-weekly"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Weekly practice result, run ${GITHUB_RUN_ID}"
+          git push origin HEAD:ledger
+      - name: Check out main (write) for candidate branches
+        uses: actions/checkout@v4
+        with: { ref: main, path: cand }
+      - name: Push a candidate branch for each kept idea (merged only after council verdict and member approval)
+        working-directory: cand
+        run: |
+          shopt -s nullglob
+          for f in "$RUNNER_TEMP"/proposals/*.json; do
+            id="$(basename "$f" .json)"
+            git switch -c "candidate/${id}-${GITHUB_RUN_ID}" main
+            cp "$f" loop/working_model.json
+            git -c user.name=brink-weekly -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -am "Candidate: ${id} kept on the practice years (run ${GITHUB_RUN_ID})"
+            git push origin "candidate/${id}-${GITHUB_RUN_ID}"
+            git switch main
+          done
+  record-failure:
+    needs: practice
+    if: failure()
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main, path: trusted, persist-credentials: false }
+      - uses: actions/checkout@v4
+        with: { ref: ledger, path: ledger }
+      - name: Record the failed run (never counted as an idea dropped)
+        run: |
+          python3 trusted/loop/record.py failed --ledger ledger
+          cd ledger
+          git -c user.name=brink-weekly -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -am "Weekly practice run ${GITHUB_RUN_ID} failed"
+          git push origin HEAD:ledger
