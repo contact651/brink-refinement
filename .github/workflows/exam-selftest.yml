@@ -1,0 +1,32 @@
+# Fake-exam tests (no real exam data; the real ledger is never written). Runs by hand and on every pull request to
+# main, so a change that weakens the exam wall or the practice isolation shows up before anyone merges it.
+name: exam-selftest
+on:
+  workflow_dispatch: {}
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  selftest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with: { path: src, persist-credentials: false }
+      - name: "Fake-exam tests: binding, 4th check refused, quarter edge, no refunds, two at once, fingerprints"
+        run: python3 src/loop/exam_selftest.py
+      - name: Canary control (with the repository and the internet present, the canary MUST report leaks)
+        working-directory: src
+        run: |
+          if python3 loop/canary.py --ws "$GITHUB_WORKSPACE" > "$RUNNER_TEMP/control.txt" 2>&1; then
+            cat "$RUNNER_TEMP/control.txt"; echo "FAIL: the canary missed leaks it should have found"; exit 1
+          fi
+          tail -n 5 "$RUNNER_TEMP/control.txt"; echo "PASS: the canary catches leaks when they exist"
+      - name: Canary under the practice isolation (MUST find no way out)
+        run: |
+          ISO="$RUNNER_TEMP/iso"; mkdir -p "$ISO/loop"; cp src/loop/canary.py "$ISO/loop/"; rm -rf src
+          PY="$(command -v python3)"; ME="$(id -un)"
+          sudo unshare --net -- runuser -u "$ME" -- env -i HOME="$ISO" PATH="/usr/bin:/bin" LANG=C.UTF-8 \
+            bash -c "cd '$ISO' && '$PY' loop/canary.py --ws '$GITHUB_WORKSPACE'"
+          echo "PASS: no exam path, no history, no network, no credential reachable under isolation"

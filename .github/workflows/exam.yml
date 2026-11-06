@@ -1,0 +1,136 @@
+# Brink exam check: scores ONE idea that the weekly practice run KEPT on the exam years 2015-2025.
+# Plan passed by the Judges (LONG MONEY Task 2, rounds 2-3, 5 Nov 2026):
+#  - manual start only, from main only (reviewed code); the only input picks a data file, never code;
+#  - one exam check at a time, none cancelled midway;
+#  - the reservation (quarter, check number, exact idea-file hash, exact code revision) is pushed to the ledger
+#    BEFORE any exam outcome is built; if that push fails, nothing is built; a reservation is never refunded;
+#  - at most 3 checks per calendar quarter (UTC), counting checks made before this repository existed;
+#  - the outcome tables are rebuilt from public sources and must match the Round 1 fingerprints, or nothing is scored.
+#  - before reserving, a rehearsal runs the same scorer on the practice years with NO exam data, so a code fault
+#    stops the run before a check is used. "rehearsal_only" stops right after it (it can only stop earlier).
+# The result goes to the council; nothing here changes the Working Model.
+name: exam-check
+on:
+  workflow_dispatch:
+    inputs:
+      experiment:
+        description: "Id of an idea file in queue/ that a weekly practice run KEPT"
+        required: true
+        type: string
+      rehearsal_only:
+        description: "Stop after the no-exam-data rehearsal (never reserves, never builds exam outcomes)"
+        required: false
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: brink-exam
+  cancel-in-progress: false
+jobs:
+  exam:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 340
+    permissions:
+      contents: write
+    env:
+      EXP: ${{ inputs.experiment }}
+      REHEARSAL_ONLY: ${{ inputs.rehearsal_only }}
+    steps:
+      - name: Check out reviewed code (main, this exact revision)
+        uses: actions/checkout@v4
+        with: { ref: "${{ github.sha }}", path: src, persist-credentials: false }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Early check (writes nothing) that this idea can be reserved this quarter
+        if: inputs.rehearsal_only != true
+        run: |
+          git clone -q --depth 1 -b ledger "https://github.com/${GITHUB_REPOSITORY}.git" "$RUNNER_TEMP/ledger_peek"
+          python3 src/loop/exam_reserve.py reserve --dry-run --ledger "$RUNNER_TEMP/ledger_peek" --prior src/pub/prior_exam_checks.json \
+            --experiment "$EXP" --queue src/queue --commit "$GITHUB_SHA"
+      - name: Install pinned packages
+        run: python -m pip install --no-cache-dir -r src/requirements.txt
+      - name: Download public data (raw sources only; no outcome table is built yet)
+        working-directory: src
+        run: |
+          python brink_data.py --vintages --only ucdp_ged,ucdp_candidate,ucdp_small,vdem,wdi_current,unhcr,imf,boc_boe,pitf_csp,mmp,disasters,borders
+          python cycle/fetch_wdi_parallel.py
+          python cycle/fetch_extra_wdi.py
+          curl -fsSL --retry 3 -o data/raw/country_centroids_gavinr.csv https://raw.githubusercontent.com/gavinr/world-countries-centroids/master/dist/countries.csv
+      - name: Build model features (raw sources only)
+        working-directory: src
+        run: |
+          python brink_claude.py features
+          python -c "import brink_grok; brink_grok.build_features()"
+      - name: "Rehearsal: run the scorer on the practice years with NO exam data (outcomes cut at Dec 2014)"
+        working-directory: src
+        run: |
+          mkdir -p "$RUNNER_TEMP/rehearsal"
+          python -c "import sys; sys.path.insert(0, 'loop'); import prep_practice as PP; PP.open_outcomes(sys.argv[1])" "$RUNNER_TEMP/rehearsal"
+          python loop/exam_score.py --rehearsal --outcomes-dir "$RUNNER_TEMP/rehearsal" --experiment "queue/$EXP.json" \
+            --working-model loop/working_model.json --out "$RUNNER_TEMP/rehearsal_result.json"
+          test ! -e data/outcomes/outcomes_long_sealed.csv.gz && test ! -e data/outcomes/targets_sealed.csv.gz
+      - name: Stop here (rehearsal only)
+        if: inputs.rehearsal_only == true
+        run: echo "Rehearsal passed. Nothing was reserved and no exam outcome was built." && exit 0
+      - name: Check out the ledger (write)
+        if: inputs.rehearsal_only != true
+        uses: actions/checkout@v4
+        with: { ref: ledger, path: ledger }
+      - name: Reserve one exam check and push it to the ledger (before any exam outcome exists)
+        if: inputs.rehearsal_only != true
+        id: reserve
+        run: bash src/loop/exam_reserve_push.sh ledger src/pub/prior_exam_checks.json "$EXP" src/queue "$GITHUB_SHA"
+      - name: Confirm the reservation matches this exact idea file and this exact code revision
+        if: inputs.rehearsal_only != true
+        run: python3 src/loop/exam_reserve.py verify --ledger ledger --experiment "$EXP" --queue src/queue --commit "$(git -C src rev-parse HEAD)"
+      - name: Build the outcome tables (the exam read)
+        if: inputs.rehearsal_only != true
+        id: build
+        working-directory: src
+        run: python brink_outcomes.py > "$RUNNER_TEMP/outcomes_build.log"
+      - name: Check every fingerprint against the Round 1 record (fail closed)
+        if: inputs.rehearsal_only != true
+        id: fp
+        working-directory: src
+        run: |
+          python loop/exam_fingerprints.py --manifest pub/exam_fingerprint.json --out "$RUNNER_TEMP/fingerprints.json" \
+            brink_outcomes.py=brink_outcomes.py \
+            outcomes_long_open.csv.gz=data/outcomes/outcomes_long_open.csv.gz \
+            outcomes_long_sealed.csv.gz=data/outcomes/outcomes_long_sealed.csv.gz \
+            targets_open.csv.gz=data/outcomes/targets_open.csv.gz \
+            targets_sealed.csv.gz=data/outcomes/targets_sealed.csv.gz \
+            brink_score.py=brink_score.py brink_benchmarks.py=brink_benchmarks.py \
+            pitf_style_params.json=data/models/pitf_style_params.json claude_params.json=data/models/claude_params.json
+      - name: Score the idea on the exam years
+        if: inputs.rehearsal_only != true
+        id: score
+        working-directory: src
+        run: |
+          python loop/exam_score.py --experiment "queue/$EXP.json" --working-model loop/working_model.json --out "$RUNNER_TEMP/exam_result.json"
+      - name: Record the outcome on the ledger (append only; a used check is never given back)
+        if: always() && steps.reserve.outcome == 'success'
+        env:
+          BUILD: ${{ steps.build.outcome }}
+          FP: ${{ steps.fp.outcome }}
+          SCORE: ${{ steps.score.outcome }}
+        run: |
+          if [ "$FP" = "failure" ]; then ST="fingerprint mismatch"
+          elif [ "$BUILD" = "success" ] && [ "$FP" = "success" ] && [ "$SCORE" = "success" ]; then ST="scored"
+          else ST="failed after reservation (not refunded)"; fi
+          day="$(date -u +%F)"; mkdir -p ledger/runs; rel=""
+          if [ "$ST" = "scored" ]; then rel="runs/exam_${day}_${GITHUB_RUN_ID}.json"; cp "$RUNNER_TEMP/exam_result.json" "ledger/$rel"; fi
+          if [ -f "$RUNNER_TEMP/fingerprints.json" ]; then cp "$RUNNER_TEMP/fingerprints.json" "ledger/runs/exam_${day}_${GITHUB_RUN_ID}_fingerprints.json"; fi
+          python3 src/loop/exam_reserve.py outcome --ledger ledger --status "$ST" --result-file "$rel" \
+            --summary "$RUNNER_TEMP/exam_result.json.summary.json" --detail "build=$BUILD fingerprints=$FP score=$SCORE"
+          cd ledger
+          git -c user.name=brink-exam -c user.email=41898282+github-actions[bot]@users.noreply.github.com add -A
+          git -c user.name=brink-exam -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -q -m "Exam outcome, run ${GITHUB_RUN_ID}: ${ST}"
+          for i in 1 2 3 4 5; do
+            git push -q origin HEAD:ledger && break
+            sleep $((i * 10)); git -c user.name=brink-exam -c user.email=41898282+github-actions[bot]@users.noreply.github.com pull -q --rebase origin ledger
+          done
+          git fetch -q origin ledger && git merge-base --is-ancestor HEAD origin/ledger
+          echo "Exam outcome: $ST"
+          if [ "$ST" != "scored" ]; then exit 1; fi
