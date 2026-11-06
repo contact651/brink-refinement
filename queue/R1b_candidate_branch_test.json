@@ -1,0 +1,8 @@
+{
+ "id": "R1b_candidate_branch_test",
+ "title": "Machine self-test 2: same idea as R1, new id, to prove the candidate-branch step",
+ "added": "2026-11-06",
+ "lens": "GLOBAL",
+ "add_signals": ["x_own"],
+ "note": "The first self-test (run 42156867698) reproduced cycle 1 with a KEEP, but a scripting fault stopped the candidate-branch step. Fixed 6 Nov. This copy must again give KEEP and must push a candidate branch."
+}
